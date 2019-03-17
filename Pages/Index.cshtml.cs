@@ -16,24 +16,9 @@ namespace CoreWebsiteTest1.Pages
 {
     public class IndexModel : PageModel
     {
-        //public MySql.Data.MySqlClient.MySqlConnection conn;
-        //public string myConnectionString;
-        //public bool bConnectionWasSuccessful = false;
-        //public string connectionErrnoIfAny = "";
-
         public void OnGet()
         {
-
+            
         }
-
-        public bool IsPost()
-        {
-            return HttpContext.Request.Method == "POST";
-        }
-
-        //public bool connectDB(out MySqlConnection conn, out string connectionErrnoIfAny)
-        //{
-        //    return dbHandle.connectDB(out conn, out connectionErrnoIfAny);
-        //}
     }
 }

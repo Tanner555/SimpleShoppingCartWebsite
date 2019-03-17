@@ -12,6 +12,7 @@
 @using System.Web;
 @using Microsoft.AspNetCore.Mvc.TagHelpers;
 @using MySql.Data.MySqlClient;
+@using CoreWebsiteTest1.OtherClasses;
 @using dbHandle = CoreWebsiteTest1.OtherClasses.MyDBController;
 <!-- #endregion -->
 <!--#region Methods-->
@@ -36,7 +37,7 @@ using (var _dbHandle = new dbHandle())
                 <form method="post" asp-page="/Index" asp-all-route-data="_params">
                     <div class="product-image"><img src="@dataReader.GetString("image")"></div>
                     <div><strong>@dataReader.GetString("name")</strong></div>
-                    <div class="product-price">@dataReader.GetString("price")</div>
+                    <div class="product-price">$@dataReader.GetString("price")</div>
                     <div><input type="text" name="quantity" value="1" size="2" /><input type="submit" value="Add to cart" class="btnAddAction" /></div>
                 </form>
             </div>
@@ -51,9 +52,9 @@ using (var _dbHandle = new dbHandle())
 
 Func<string, IHtmlContent> CreateTopAddedCartItemsListTemplate =
 @<text>@{
-/* CODE */
-int item_total;
-var _empty_params = new Dictionary<string, string>{{ "action", "empty" }};
+    /* CODE */
+    int item_total;
+    var _empty_params = new Dictionary<string, string> { { "action", "empty" } };
 <div id="shopping-cart">
     <div class="txt-heading">Shopping Cart <a id="btnEmpty" asp-page="/Index" asp-all-route-data="_empty_params">Empty Cart</a></div>
     @if (HttpContext.Items.ContainsKey("cart_item"))
