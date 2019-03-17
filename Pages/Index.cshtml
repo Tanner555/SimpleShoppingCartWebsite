@@ -1,0 +1,142 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<!-- #region TopInfo -->
+@*@using System.Web.Mvc;*@
+@using System.Text;
+@using Microsoft.AspNetCore.Html;
+@using Microsoft.AspNetCore.Http;
+@using System.Web;
+@using Microsoft.AspNetCore.Mvc.TagHelpers;
+@using MySql.Data.MySqlClient;
+@using dbHandle = CoreWebsiteTest1.OtherClasses.MyDBController;
+<!-- #endregion -->
+<!--#region Methods-->
+@{
+Func<string, IHtmlContent> CreateCartListTemplate =
+@<text>@{
+/* CODE */
+string query = $"SELECT * FROM products WHERE parttype='{item}' ORDER BY id ASC";
+using (var _dbHandle = new dbHandle())
+{
+    MySqlDataReader dataReader; string connectionErrnoIfAny;
+    if (_dbHandle.RunQuery(query, out dataReader, out connectionErrnoIfAny))
+    {
+        while (dataReader.Read())
+        {
+            var _params = new Dictionary<string, string>
+            {
+                { "action", "add" }
+            };
+
+            <div class="product-item">
+                <form method="post" asp-page="/Index" asp-all-route-data="_params">
+                    <div class="product-image"><img src="@dataReader.GetString("image")"></div>
+                    <div><strong>@dataReader.GetString("name")</strong></div>
+                    <div class="product-price">@dataReader.GetString("price")</div>
+                    <div><input type="text" name="quantity" value="1" size="2" /><input type="submit" value="Add to cart" class="btnAddAction" /></div>
+                </form>
+            </div>
+        }
+    }
+    else
+    {
+        <h1>An Error: @connectionErrnoIfAny</h1>
+    }
+}
+}</text>;
+
+Func<string, IHtmlContent> CreateTopAddedCartItemsListTemplate =
+@<text>@{
+/* CODE */
+int item_total;
+var _empty_params = new Dictionary<string, string>{{ "action", "empty" }};
+<div id="shopping-cart">
+    <div class="txt-heading">Shopping Cart <a id="btnEmpty" asp-page="/Index" asp-all-route-data="_empty_params">Empty Cart</a></div>
+    @if (HttpContext.Items.ContainsKey("cart_item"))
+    {
+        item_total = 0;
+    }
+    <table cellpadding="10" cellspacing="1">
+        <tbody>
+            <tr>
+                <th style="text-align:left;"><strong>Name</strong></th>
+                <th style="text-align:left;"><strong>Code</strong></th>
+                <th style="text-align:right;"><strong>Quantity</strong></th>
+                <th style="text-align:right;"><strong>Price</strong></th>
+                <th style="text-align:center;"><strong>Action</strong></th>
+            </tr>
+            
+        </tbody>
+    </table>
+</div>
+}</text>;
+
+
+}
+
+<!--#endregion-->
+<!--#region Commented Code-->
+@{
+    Func<string, IHtmlContent> CreateCartListTemplatePrototype1 =
+    @<text>@{
+    /* CODE */
+    string query = $"SELECT * FROM products WHERE parttype='{item}' ORDER BY id ASC";
+    using (var _dbHandle = new dbHandle())
+    {
+        MySqlDataReader dataReader; string connectionErrnoIfAny;
+        if (_dbHandle.RunQuery(query, out dataReader, out connectionErrnoIfAny))
+        {
+            <h1>Query Was Successful.</h1>
+            while (dataReader.Read())
+            {
+                string _code = dataReader.GetString("code");
+                <h2>Code: @_code</h2>
+            }
+        }
+        else
+        {
+            <h1>An Error: @connectionErrnoIfAny</h1>
+        }
+    }
+}</text>;
+}
+<!--#endregion-->
+<!--#region MainPage-->
+<!--<div class="text-center">-->
+    <div id="title-heading">
+        <h1>Computer-O-Rama Shopping Cart</h1>
+        <h2>All the Computer Parts You'll Ever Need.</h2>
+    </div>
+    @CreateTopAddedCartItemsListTemplate("");
+
+    <div id="product-grid">
+        <div class="txt-heading">Processors</div>
+        @CreateCartListTemplate("processor");
+    </div>
+
+    <div id="product-grid">
+        <div class="txt-heading">Cases</div>
+        @CreateCartListTemplate("case");
+    </div>
+
+    <div id="product-grid">
+        <div class="txt-heading">Peripherals</div>
+        @CreateCartListTemplate("peripheral");
+    </div>
+
+    <div id="product-grid">
+        <div class="txt-heading">Ram</div>
+        @CreateCartListTemplate("ram");
+    </div>
+
+    <div id="product-grid">
+        <div class="txt-heading">Motherboards</div>
+        @CreateCartListTemplate("motherboard");
+    </div>
+
+<!--</div>-->
+    <!--#endregion-->

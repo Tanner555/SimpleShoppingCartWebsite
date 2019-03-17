@@ -335,3 +335,14 @@ _[Ss]cripts
 *.nupkg
 *.ncrunchsolution
 *.dot[Cc]over
+
+#########################
+# Remove All Private Classes
+#########################
+PrivateInfo
+
+#########################
+# Other Generated Files
+#########################
+wwwroot/lib
+wwwroot/favicon.ico
