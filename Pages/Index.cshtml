@@ -13,48 +13,47 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers;
 @using MySql.Data.MySqlClient;
 @using CoreWebsiteTest1.OtherClasses;
+@using CoreWebsiteTest1.Models;
+@using CoreWebsiteTest1.DAL;
 @using dbHandle = CoreWebsiteTest1.OtherClasses.MyDBController;
 <!-- #endregion -->
 <!--#region Methods-->
 @{
-Func<string, IHtmlContent> CreateCartListTemplate =
-@<text>@{
-/* CODE */
-string query = $"SELECT * FROM products WHERE parttype='{item}' ORDER BY id ASC";
-using (var _dbHandle = new dbHandle())
-{
-    MySqlDataReader dataReader; string connectionErrnoIfAny;
-    if (_dbHandle.RunQuery(query, out dataReader, out connectionErrnoIfAny))
+    Func<string, IHtmlContent> CreateCartListTemplate =
+    @<text>@{
+    /* CODE */
+    string query = $"SELECT * FROM products WHERE parttype='{item}' ORDER BY id ASC";
+    using (var _dbHandle = new dbHandle())
     {
-        while (dataReader.Read())
+        string connectionErrnoIfAny;
+        List<ProductItemModel> productItems;
+        if (_dbHandle.RetrieveProductItemsFromQuery(query, out productItems, out connectionErrnoIfAny))
         {
-            var _params = new Dictionary<string, string>
+            var _params = new Dictionary<string, string> { { "action", "add" } };
+            foreach (var productItem in productItems)
             {
-                { "action", "add" }
-            };
-
-            <div class="product-item">
-                <form method="post" asp-page="/Index" asp-all-route-data="_params">
-                    <div class="product-image"><img src="@dataReader.GetString("image")"></div>
-                    <div><strong>@dataReader.GetString("name")</strong></div>
-                    <div class="product-price">$@dataReader.GetString("price")</div>
-                    <div><input type="text" name="quantity" value="1" size="2" /><input type="submit" value="Add to cart" class="btnAddAction" /></div>
-                </form>
-            </div>
+                <div class="product-item">
+                    <form method="post" asp-page="/Index" asp-all-route-data="_params">
+                        <div class="product-image"><img src="@productItem.Image"></div>
+                        <div><strong>@productItem.Name</strong></div>
+                        <div class="product-price">$@productItem.Price</div>
+                        <div><input type="text" name="quantity" value="1" size="2" /><input type="submit" value="Add to cart" class="btnAddAction" /></div>
+                    </form>
+                </div>
+            }
         }
-    }
-    else
-    {
-        <h1>An Error: @connectionErrnoIfAny</h1>
-    }
+        else
+        {
+            <h1>An Error: @connectionErrnoIfAny</h1>
+        }
 }
 }</text>;
 
 Func<string, IHtmlContent> CreateTopAddedCartItemsListTemplate =
 @<text>@{
-    /* CODE */
-    int item_total;
-    var _empty_params = new Dictionary<string, string> { { "action", "empty" } };
+/* CODE */
+int item_total;
+var _empty_params = new Dictionary<string, string> { { "action", "empty" } };
 <div id="shopping-cart">
     <div class="txt-heading">Shopping Cart <a id="btnEmpty" asp-page="/Index" asp-all-route-data="_empty_params">Empty Cart</a></div>
     @if (HttpContext.Items.ContainsKey("cart_item"))
@@ -70,7 +69,7 @@ Func<string, IHtmlContent> CreateTopAddedCartItemsListTemplate =
                 <th style="text-align:right;"><strong>Price</strong></th>
                 <th style="text-align:center;"><strong>Action</strong></th>
             </tr>
-            
+
         </tbody>
     </table>
 </div>
@@ -108,36 +107,36 @@ Func<string, IHtmlContent> CreateTopAddedCartItemsListTemplate =
 <!--#endregion-->
 <!--#region MainPage-->
 <!--<div class="text-center">-->
-    <div id="title-heading">
-        <h1>Computer Shopping Cart</h1>
-        <h2>Plenty of Computer Parts That'll Fit All of Your Needs.</h2>
-    </div>
-    @CreateTopAddedCartItemsListTemplate("")
+<div id="title-heading">
+    <h1>Computer Shopping Cart</h1>
+    <h2>Plenty of Computer Parts That'll Fit All of Your Needs.</h2>
+</div>
+@CreateTopAddedCartItemsListTemplate("")
 
-    <div id="product-grid">
-        <div class="txt-heading">Processors</div>
-        @CreateCartListTemplate("processor");
-    </div>
+<div id="product-grid">
+    <div class="txt-heading">Processors</div>
+    @CreateCartListTemplate("processor")
+</div>
 
-    <div id="product-grid">
-        <div class="txt-heading">Cases</div>
-        @CreateCartListTemplate("case");
-    </div>
+<div id="product-grid">
+    <div class="txt-heading">Cases</div>
+    @CreateCartListTemplate("case")
+</div>
 
-    <div id="product-grid">
-        <div class="txt-heading">Peripherals</div>
-        @CreateCartListTemplate("peripheral");
-    </div>
+<div id="product-grid">
+    <div class="txt-heading">Peripherals</div>
+    @CreateCartListTemplate("peripheral")
+</div>
 
-    <div id="product-grid">
-        <div class="txt-heading">Ram</div>
-        @CreateCartListTemplate("ram");
-    </div>
+<div id="product-grid">
+    <div class="txt-heading">Ram</div>
+    @CreateCartListTemplate("ram")
+</div>
 
-    <div id="product-grid">
-        <div class="txt-heading">Motherboards</div>
-        @CreateCartListTemplate("motherboard");
-    </div>
+<div id="product-grid">
+    <div class="txt-heading">Motherboards</div>
+    @CreateCartListTemplate("motherboard")
+</div>
 
 <!--</div>-->
-    <!--#endregion-->
+<!--#endregion-->

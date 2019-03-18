@@ -96,13 +96,7 @@ namespace CoreWebsiteTest1.OtherClasses
                 productItems = new List<ProductItemModel>();
                 while (_reader.Read())
                 {
-                    var _productItem = new ProductItemModel();
-                    _productItem.ID = _reader.GetInt32(_productItem.GetIDColumn);
-                    _productItem.Name = _reader.GetString(_productItem.GetNameColumn);
-                    _productItem.PartType = _reader.GetString(_productItem.GetPartTypeColumn);
-                    _productItem.Code = _reader.GetString(_productItem.GetCodeColumn);
-                    _productItem.Image = _reader.GetString(_productItem.GetImageColumn);
-                    _productItem.Price = _reader.GetDouble(_productItem.GetPriceColumn);
+                    var _productItem = RetrieveProductItemFromRead(ref _reader);
                     productItems.Add(_productItem);
                 }
                 return true;
@@ -112,6 +106,26 @@ namespace CoreWebsiteTest1.OtherClasses
                 productItems = null;
                 return false;
             }
+        }
+
+        private ProductItemModel RetrieveProductItemFromRead(ref MySqlDataReader reader)
+        {
+            var _productItem = new ProductItemModel();
+            _productItem.ID = reader.GetInt32(_productItem.GetIDColumn);
+            _productItem.Name = reader.GetString(_productItem.GetNameColumn);
+            _productItem.PartType = reader.GetString(_productItem.GetPartTypeColumn);
+            _productItem.Code = reader.GetString(_productItem.GetCodeColumn);
+            _productItem.Image = reader.GetString(_productItem.GetImageColumn);
+            _productItem.Price = reader.GetDouble(_productItem.GetPriceColumn);
+            return _productItem;
+        }
+
+        private CartItemModel RetrieveCartItemFromRead(ref MySqlDataReader reader, int quantity)
+        {
+            var _cartItem = new CartItemModel();
+            _cartItem.ProductItem = RetrieveProductItemFromRead(ref reader);
+            _cartItem.Quantity = quantity;
+            return _cartItem;
         }
         #endregion
 
