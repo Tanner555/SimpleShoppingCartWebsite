@@ -39,6 +39,7 @@ namespace CoreWebsiteTest1.Pages
                     case "add":
                         if (Request.Form.ContainsKey("quantity") && !string.IsNullOrEmpty(_code))
                         {
+                            int _quantity = int.Parse(Request.Form["quantity"]);
                             string _productByCodeQuery = "SELECT * FROM products WHERE code='" + _code + "'";
                             using (var _dbHandle = new dbHandle())
                             {
@@ -47,7 +48,29 @@ namespace CoreWebsiteTest1.Pages
                                     _productItems != null && _productItems.Count > 0)
                                 {
                                     var productByCode = _productItems[0];
+                                    var cartItemByCode = new CartItemModel(productByCode, _quantity);
+                                    if (cartItemSession != null && cartItemSession.Count > 0)
+                                    {
+                                        //Cart Session Exists
+                                        bool _bProductByCodeInArray = false;
+                                        foreach (var cartItem in cartItemSession)
+                                        {
+                                            if(cartItem.ProductItem.Code == productByCode.Code)
+                                            {
+                                                _bProductByCodeInArray = true;
+                                                if (cartItem.Quantity <= 0) cartItem.Quantity = 0;
 
+                                                cartItem.Quantity += _quantity;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //Cart Session List Doesn't Exist, We Need To Create It.
+                                        HttpContext.Session.Clear();
+                                        var _newCartSession = new List<CartItemModel>() { cartItemByCode };
+                                        HttpContext.Session.Set<List<CartItemModel>>("cart_item_session", _newCartSession);
+                                    }
                                 }
                             }
                         }
