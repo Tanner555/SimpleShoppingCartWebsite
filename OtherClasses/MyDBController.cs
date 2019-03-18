@@ -120,13 +120,13 @@ namespace CoreWebsiteTest1.OtherClasses
             return _productItem;
         }
 
-        private CartItemModel RetrieveCartItemFromRead(ref MySqlDataReader reader, int quantity)
-        {
-            var _cartItem = new CartItemModel();
-            _cartItem.ProductItem = RetrieveProductItemFromRead(ref reader);
-            _cartItem.Quantity = quantity;
-            return _cartItem;
-        }
+        //private CartItemModel RetrieveCartItemFromRead(ref MySqlDataReader reader, int quantity)
+        //{
+        //    var _cartItem = new CartItemModel();
+        //    _cartItem.ProductItem = RetrieveProductItemFromRead(ref reader);
+        //    _cartItem.Quantity = quantity;
+        //    return _cartItem;
+        //}
         #endregion
 
         #region Disposing
