@@ -6,21 +6,29 @@ using MySql.Data.EntityFrameworkCore;
 using MySql.Data.EntityFrameworkCore.Extensions;
 using MySql.Data.MySqlClient;
 using myPrivateInfo = CoreWebsiteTest1.PrivateInfo.MyPrivateInfo;
+using CoreWebsiteTest1.Models;
+using CoreWebsiteTest1.DAL;
+using CoreWebsiteTest1.OtherClasses;
 
 namespace CoreWebsiteTest1.OtherClasses
 {
     public class MyDBController : IDisposable
     {
+        #region Fields
         private MySqlConnection PrivateConn;
         private MySqlCommand MyPrivateSqlCommand;
         private MySqlDataReader MyPrivateSqlDataReader;
-        
+        #endregion
+
+        #region Properties
         private string myConnectionString
         {
             //Template:server=servername;uid=userID;password=userPassword;database=databaseName
             get { return myPrivateInfo.mySQLConnectionString; }
         }
+        #endregion
 
+        #region Connection
         public bool connectDB(out MySqlConnection conn, out string connectionErrnoIfAny)
         {
             conn = null; connectionErrnoIfAny = "";
@@ -45,11 +53,13 @@ namespace CoreWebsiteTest1.OtherClasses
             }
             return bconnectionwassuccessful;
         }
+        #endregion
 
+        #region Queries
         public bool RunQuery(string query, out MySqlDataReader dataReader, out string connectionErrnoIfAny)
         {
             MySqlConnection conn; dataReader = null;
-            if(connectDB(out conn, out connectionErrnoIfAny))
+            if (connectDB(out conn, out connectionErrnoIfAny))
             {
                 return RunQuery(query, conn, out dataReader, out connectionErrnoIfAny);
             }
@@ -69,13 +79,43 @@ namespace CoreWebsiteTest1.OtherClasses
                 dataReader = MyPrivateSqlDataReader;
                 return true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 connectionErrnoIfAny = ex.Message;
                 return false;
             }
         }
+        #endregion
 
+        #region Conversion
+        public bool RetrieveProductItemsFromQuery(string query, out List<ProductItemModel> productItems, out string connectionErrnoIfAny)
+        {
+            MySqlDataReader _reader = null; connectionErrnoIfAny = "";
+            if (RunQuery(query, out _reader, out connectionErrnoIfAny))
+            {
+                productItems = new List<ProductItemModel>();
+                while (_reader.Read())
+                {
+                    var _productItem = new ProductItemModel();
+                    _productItem.ID = _reader.GetInt32(_productItem.GetIDColumn);
+                    _productItem.Name = _reader.GetString(_productItem.GetNameColumn);
+                    _productItem.PartType = _reader.GetString(_productItem.GetPartTypeColumn);
+                    _productItem.Code = _reader.GetString(_productItem.GetCodeColumn);
+                    _productItem.Image = _reader.GetString(_productItem.GetImageColumn);
+                    _productItem.Price = _reader.GetDouble(_productItem.GetPriceColumn);
+                    productItems.Add(_productItem);
+                }
+                return true;
+            }
+            else
+            {
+                productItems = null;
+                return false;
+            }
+        }
+        #endregion
+
+        #region Disposing
         public void Dispose()
         {
             if (PrivateConn != null)
@@ -95,5 +135,7 @@ namespace CoreWebsiteTest1.OtherClasses
             }
 
         }
+        #endregion
+
     }
 }
