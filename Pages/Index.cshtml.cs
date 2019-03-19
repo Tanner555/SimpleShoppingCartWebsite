@@ -17,6 +17,8 @@ namespace CoreWebsiteTest1.Pages
 {
     public class IndexModel : PageModel
     {
+        public string cartItemSessionKey = "cart_item_session";
+
         public void OnGet()
         {
             CreateCartSession(false);
@@ -31,7 +33,7 @@ namespace CoreWebsiteTest1.Pages
         {
             string _action = HttpContext.Request.Query["action"].ToString();
             string _code = HttpContext.Request.Query["code"].ToString();
-            List<CartItemModel> cartItemSession = HttpContext.Session.Get<List<CartItemModel>>("cart_item_session");
+            List<CartItemModel> cartItemSession = HttpContext.Session.Get<List<CartItemModel>>(cartItemSessionKey);
             if (!string.IsNullOrEmpty(_action))
             {
                 switch (_action)
@@ -69,7 +71,7 @@ namespace CoreWebsiteTest1.Pages
                                         //Cart Session List Doesn't Exist, We Need To Create It.
                                         HttpContext.Session.Clear();
                                         var _newCartSession = new List<CartItemModel>() { cartItemByCode };
-                                        HttpContext.Session.Set<List<CartItemModel>>("cart_item_session", _newCartSession);
+                                        HttpContext.Session.Set<List<CartItemModel>>(cartItemSessionKey, _newCartSession);
                                     }
                                 }
                             }
@@ -78,12 +80,18 @@ namespace CoreWebsiteTest1.Pages
                     case "remove":
                         if (cartItemSession != null && cartItemSession.Count > 0)
                         {
+                            CartItemModel _cartItemToRemove = null;
                             foreach (var cartItem in cartItemSession)
                             {
                                 if(_code == cartItem.ProductItem.Code)
                                 {
-                                    HttpContext.Session.Remove(_code);
+                                    _cartItemToRemove = cartItem;
                                 }
+                            }
+                            if(_cartItemToRemove != null)
+                            {
+                                cartItemSession.Remove(_cartItemToRemove);
+                                HttpContext.Session.Set<List<CartItemModel>>(cartItemSessionKey, cartItemSession);
                             }
                         }
                         break;

@@ -67,7 +67,7 @@ Func<string, IHtmlContent> CreateTopAddedCartItemsListTemplate =
             </tr>
 
             @{ 
-                List<CartItemModel> cartItemSession = HttpContext.Session.Get<List<CartItemModel>>("cart_item_session");
+                List<CartItemModel> cartItemSession = HttpContext.Session.Get<List<CartItemModel>>(Model.cartItemSessionKey);
                 if(cartItemSession != null && cartItemSession.Count > 0)
                 {
                     foreach (var cartItem in cartItemSession)
