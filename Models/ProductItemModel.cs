@@ -40,5 +40,6 @@ namespace CoreWebsiteTest1.Models
         [Required]
         public double Price { get; set; }
         public string GetPriceColumn => "price";
+        public string GetPrice2dpCurrencyStr => Price.ToString("c2");
     }
 }

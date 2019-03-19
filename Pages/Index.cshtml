@@ -33,7 +33,7 @@
                 <form method="post" asp-page="/Index" asp-all-route-data="_params">
                     <div class="product-image"><img src="@productItem.Image"></div>
                     <div><strong>@productItem.Name</strong></div>
-                    <div class="product-price">$@productItem.Price</div>
+                    <div class="product-price">@productItem.GetPrice2dpCurrencyStr</div>
                     <div><input type="text" name="quantity" value="1" size="2" /><input type="submit" value="Add to cart" class="btnAddAction" /></div>
                 </form>
             </div>
@@ -73,7 +73,7 @@ var _empty_params = new Dictionary<string, string> { { "action", "empty" } };
                         <td style="text-align:left;border-bottom:#F0F0F0 1px solid;"><strong>@cartItem.ProductItem.Name</strong></td>
                         <td style="text-align:left;border-bottom:#F0F0F0 1px solid;">@cartItem.ProductItem.Code</td>
                         <td style="text-align:right;border-bottom:#F0F0F0 1px solid;">@cartItem.Quantity</td>
-                        <td style="text-align:right;border-bottom:#F0F0F0 1px solid;">@cartItem.ProductItem.Price</td>
+                        <td style="text-align:right;border-bottom:#F0F0F0 1px solid;">@cartItem.ProductItem.GetPrice2dpCurrencyStr</td>
                         <td style="text-align:center;border-bottom:#F0F0F0 1px solid;"><a asp-page="/Index" asp-all-route-data="@_remove_cart_item_params" class="btnRemoveAction">Remove Item</a></td>
                     </tr>
                     item_total += cartItem.ProductItem.Price * cartItem.Quantity;
@@ -81,7 +81,7 @@ var _empty_params = new Dictionary<string, string> { { "action", "empty" } };
             }
             }
 
-            <tr><td colspan="5"><strong>Total:</strong>@String.Concat("$", item_total)</td></tr>
+            <tr><td colspan="5"><strong>Total: </strong>@item_total.ToString("c2")</td></tr>
         </tbody>
     </table>
 </div>

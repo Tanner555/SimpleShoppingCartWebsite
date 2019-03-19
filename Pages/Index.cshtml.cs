@@ -41,10 +41,7 @@ namespace CoreWebsiteTest1.Pages
                     case "add":
                         if (Request.Form.ContainsKey("quantity") && !string.IsNullOrEmpty(_code))
                         {
-                            int _quantity;
-                            bool _bQuantityParsed = int.TryParse(Request.Form["quantity"], out _quantity);
-                            if (_bQuantityParsed == false) _quantity = 1;
-
+                            int _quantity = int.TryParse(Request.Form["quantity"], out _quantity) ? _quantity : 1;
                             string _productByCodeQuery = "SELECT * FROM products WHERE code='" + _code + "'";
                             List<ProductItemModel> _productItems; string _connectionErrnoIfAny;
                             if (MyModelsHandler.RetrieveProductItemsFromQuery(_productByCodeQuery, out _productItems, out _connectionErrnoIfAny) &&
