@@ -55,15 +55,27 @@ namespace CoreWebsiteTest1.Pages
                                     {
                                         //Cart Session Exists
                                         bool _bProductByCodeInArray = false;
-                                        foreach (var cartItem in cartItemSession)
+                                        for (int i = 0; i < cartItemSession.Count; i++)
                                         {
-                                            if(cartItem.ProductItem.Code == productByCode.Code)
+                                            //Checking If CartItemByCode is Inside Current Session
+                                            if (cartItemSession[i].ProductItem.Code == cartItemByCode.ProductItem.Code)
                                             {
+                                                //Product Is Already In Session, Just Modify The Quantity Property
                                                 _bProductByCodeInArray = true;
-                                                if (cartItem.Quantity <= 0) cartItem.Quantity = 0;
+                                                if (cartItemSession[i].Quantity <= 0) cartItemSession[i].Quantity = 0;
 
-                                                cartItem.Quantity += _quantity;
+                                                cartItemSession[i].Quantity += _quantity;
+                                                //Update Session With New Cart Item Quantity
+                                                HttpContext.Session.Set<List<CartItemModel>>(cartItemSessionKey, cartItemSession);
+                                                break;
                                             }
+                                        }
+
+                                        if(_bProductByCodeInArray == false)
+                                        {
+                                            //Product Is Not In Session, Add It.
+                                            cartItemSession.Add(cartItemByCode);
+                                            HttpContext.Session.Set<List<CartItemModel>>(cartItemSessionKey, cartItemSession);
                                         }
                                     }
                                     else
