@@ -23,37 +23,33 @@
     @<text>@{
     /* CODE */
     string query = $"SELECT * FROM products WHERE parttype='{item}' ORDER BY id ASC";
-    using (var _dbHandle = new dbHandle())
+    string connectionErrnoIfAny; List<ProductItemModel> productItems;
+    if (MyModelsHandler.RetrieveProductItemsFromQuery(query, out productItems, out connectionErrnoIfAny))
     {
-        string connectionErrnoIfAny;
-        List<ProductItemModel> productItems;
-        if (_dbHandle.RetrieveProductItemsFromQuery(query, out productItems, out connectionErrnoIfAny))
+        foreach (var productItem in productItems)
         {
-            foreach (var productItem in productItems)
-            {
-                var _params = new Dictionary<string, string> { { "action", "add" }, {"code", @productItem.Code}};
-                <div class="product-item">
-                    <form method="post" asp-page="/Index" asp-all-route-data="_params">
-                        <div class="product-image"><img src="@productItem.Image"></div>
-                        <div><strong>@productItem.Name</strong></div>
-                        <div class="product-price">$@productItem.Price</div>
-                        <div><input type="text" name="quantity" value="1" size="2" /><input type="submit" value="Add to cart" class="btnAddAction" /></div>
-                    </form>
-                </div>
-            }
+            var _params = new Dictionary<string, string> { { "action", "add" }, { "code", @productItem.Code } };
+            <div class="product-item">
+                <form method="post" asp-page="/Index" asp-all-route-data="_params">
+                    <div class="product-image"><img src="@productItem.Image"></div>
+                    <div><strong>@productItem.Name</strong></div>
+                    <div class="product-price">$@productItem.Price</div>
+                    <div><input type="text" name="quantity" value="1" size="2" /><input type="submit" value="Add to cart" class="btnAddAction" /></div>
+                </form>
+            </div>
         }
-        else
-        {
-            <h1>An Error: @connectionErrnoIfAny</h1>
-        }
-}
+    }
+    else
+    {
+        <h1>An Error: @connectionErrnoIfAny</h1>
+    }
 }</text>;
 
 Func<string, IHtmlContent> CreateTopAddedCartItemsListTemplate =
 @<text>@{
-    /* CODE */
-    double item_total = 0;
-    var _empty_params = new Dictionary<string, string> { { "action", "empty" } };
+/* CODE */
+double item_total = 0;
+var _empty_params = new Dictionary<string, string> { { "action", "empty" } };
 <div id="shopping-cart">
     <div class="txt-heading">Shopping Cart <a id="btnEmpty" asp-page="/Index" asp-all-route-data="_empty_params">Empty Cart</a></div>
     <table cellpadding="10" cellspacing="1">
@@ -66,13 +62,13 @@ Func<string, IHtmlContent> CreateTopAddedCartItemsListTemplate =
                 <th style="text-align:center;"><strong>Action</strong></th>
             </tr>
 
-            @{ 
-                List<CartItemModel> cartItemSession = HttpContext.Session.Get<List<CartItemModel>>(Model.cartItemSessionKey);
-                if(cartItemSession != null && cartItemSession.Count > 0)
+            @{
+            List<CartItemModel> cartItemSession = HttpContext.Session.Get<List<CartItemModel>>(Model.cartItemSessionKey);
+            if (cartItemSession != null && cartItemSession.Count > 0)
+            {
+                foreach (var cartItem in cartItemSession)
                 {
-                    foreach (var cartItem in cartItemSession)
-                    {
-                        var _remove_cart_item_params = new Dictionary<string, string> { { "action", "remove" }, { "code", @cartItem.ProductItem.Code} };
+                    var _remove_cart_item_params = new Dictionary<string, string> { { "action", "remove" }, { "code", @cartItem.ProductItem.Code } };
                     <tr>
                         <td style="text-align:left;border-bottom:#F0F0F0 1px solid;"><strong>@cartItem.ProductItem.Name</strong></td>
                         <td style="text-align:left;border-bottom:#F0F0F0 1px solid;">@cartItem.ProductItem.Code</td>
@@ -80,9 +76,9 @@ Func<string, IHtmlContent> CreateTopAddedCartItemsListTemplate =
                         <td style="text-align:right;border-bottom:#F0F0F0 1px solid;">@cartItem.ProductItem.Price</td>
                         <td style="text-align:center;border-bottom:#F0F0F0 1px solid;"><a asp-page="/Index" asp-all-route-data="@_remove_cart_item_params" class="btnRemoveAction">Remove Item</a></td>
                     </tr>
-                        item_total += cartItem.ProductItem.Price * cartItem.Quantity;
-                    }
+                    item_total += cartItem.ProductItem.Price * cartItem.Quantity;
                 }
+            }
             }
 
             <tr><td colspan="5"><strong>Total:</strong>@String.Concat("$", item_total)</td></tr>

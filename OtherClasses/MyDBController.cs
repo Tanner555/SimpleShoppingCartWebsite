@@ -87,48 +87,6 @@ namespace CoreWebsiteTest1.OtherClasses
         }
         #endregion
 
-        #region Conversion
-        public bool RetrieveProductItemsFromQuery(string query, out List<ProductItemModel> productItems, out string connectionErrnoIfAny)
-        {
-            MySqlDataReader _reader = null; connectionErrnoIfAny = "";
-            if (RunQuery(query, out _reader, out connectionErrnoIfAny))
-            {
-                productItems = new List<ProductItemModel>();
-                while (_reader.Read())
-                {
-                    var _productItem = RetrieveProductItemFromRead(ref _reader);
-                    productItems.Add(_productItem);
-                }
-                return true;
-            }
-            else
-            {
-                productItems = null;
-                return false;
-            }
-        }
-
-        private ProductItemModel RetrieveProductItemFromRead(ref MySqlDataReader reader)
-        {
-            var _productItem = new ProductItemModel();
-            _productItem.ID = reader.GetInt32(_productItem.GetIDColumn);
-            _productItem.Name = reader.GetString(_productItem.GetNameColumn);
-            _productItem.PartType = reader.GetString(_productItem.GetPartTypeColumn);
-            _productItem.Code = reader.GetString(_productItem.GetCodeColumn);
-            _productItem.Image = reader.GetString(_productItem.GetImageColumn);
-            _productItem.Price = reader.GetDouble(_productItem.GetPriceColumn);
-            return _productItem;
-        }
-
-        //private CartItemModel RetrieveCartItemFromRead(ref MySqlDataReader reader, int quantity)
-        //{
-        //    var _cartItem = new CartItemModel();
-        //    _cartItem.ProductItem = RetrieveProductItemFromRead(ref reader);
-        //    _cartItem.Quantity = quantity;
-        //    return _cartItem;
-        //}
-        #endregion
-
         #region Disposing
         public void Dispose()
         {

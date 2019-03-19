@@ -43,48 +43,45 @@ namespace CoreWebsiteTest1.Pages
                         {
                             int _quantity = int.Parse(Request.Form["quantity"]);
                             string _productByCodeQuery = "SELECT * FROM products WHERE code='" + _code + "'";
-                            using (var _dbHandle = new dbHandle())
+                            List<ProductItemModel> _productItems; string _connectionErrnoIfAny;
+                            if (MyModelsHandler.RetrieveProductItemsFromQuery(_productByCodeQuery, out _productItems, out _connectionErrnoIfAny) &&
+                                _productItems != null && _productItems.Count > 0)
                             {
-                                List<ProductItemModel> _productItems; string _connectionErrnoIfAny;
-                                if (_dbHandle.RetrieveProductItemsFromQuery(_productByCodeQuery, out _productItems, out _connectionErrnoIfAny) &&
-                                    _productItems != null && _productItems.Count > 0)
+                                var productByCode = _productItems[0];
+                                var cartItemByCode = new CartItemModel(productByCode, _quantity);
+                                if (cartItemSession != null && cartItemSession.Count > 0)
                                 {
-                                    var productByCode = _productItems[0];
-                                    var cartItemByCode = new CartItemModel(productByCode, _quantity);
-                                    if (cartItemSession != null && cartItemSession.Count > 0)
+                                    //Cart Session Exists
+                                    bool _bProductByCodeInArray = false;
+                                    for (int i = 0; i < cartItemSession.Count; i++)
                                     {
-                                        //Cart Session Exists
-                                        bool _bProductByCodeInArray = false;
-                                        for (int i = 0; i < cartItemSession.Count; i++)
+                                        //Checking If CartItemByCode is Inside Current Session
+                                        if (cartItemSession[i].ProductItem.Code == cartItemByCode.ProductItem.Code)
                                         {
-                                            //Checking If CartItemByCode is Inside Current Session
-                                            if (cartItemSession[i].ProductItem.Code == cartItemByCode.ProductItem.Code)
-                                            {
-                                                //Product Is Already In Session, Just Modify The Quantity Property
-                                                _bProductByCodeInArray = true;
-                                                if (cartItemSession[i].Quantity <= 0) cartItemSession[i].Quantity = 0;
+                                            //Product Is Already In Session, Just Modify The Quantity Property
+                                            _bProductByCodeInArray = true;
+                                            if (cartItemSession[i].Quantity <= 0) cartItemSession[i].Quantity = 0;
 
-                                                cartItemSession[i].Quantity += _quantity;
-                                                //Update Session With New Cart Item Quantity
-                                                HttpContext.Session.Set<List<CartItemModel>>(cartItemSessionKey, cartItemSession);
-                                                break;
-                                            }
-                                        }
-
-                                        if(_bProductByCodeInArray == false)
-                                        {
-                                            //Product Is Not In Session, Add It.
-                                            cartItemSession.Add(cartItemByCode);
+                                            cartItemSession[i].Quantity += _quantity;
+                                            //Update Session With New Cart Item Quantity
                                             HttpContext.Session.Set<List<CartItemModel>>(cartItemSessionKey, cartItemSession);
+                                            break;
                                         }
                                     }
-                                    else
+
+                                    if (_bProductByCodeInArray == false)
                                     {
-                                        //Cart Session List Doesn't Exist, We Need To Create It.
-                                        HttpContext.Session.Clear();
-                                        var _newCartSession = new List<CartItemModel>() { cartItemByCode };
-                                        HttpContext.Session.Set<List<CartItemModel>>(cartItemSessionKey, _newCartSession);
+                                        //Product Is Not In Session, Add It.
+                                        cartItemSession.Add(cartItemByCode);
+                                        HttpContext.Session.Set<List<CartItemModel>>(cartItemSessionKey, cartItemSession);
                                     }
+                                }
+                                else
+                                {
+                                    //Cart Session List Doesn't Exist, We Need To Create It.
+                                    HttpContext.Session.Clear();
+                                    var _newCartSession = new List<CartItemModel>() { cartItemByCode };
+                                    HttpContext.Session.Set<List<CartItemModel>>(cartItemSessionKey, _newCartSession);
                                 }
                             }
                         }
